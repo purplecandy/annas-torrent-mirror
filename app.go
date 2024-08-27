@@ -5,8 +5,10 @@ import (
 	"annas-mirror/cache"
 	"annas-mirror/database"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/hibiken/asynq"
 	"github.com/joho/godotenv"
 )
 
@@ -25,7 +27,7 @@ func main() {
 
 	action := actions.DispatchSyncTorrents()
 
-	cache.Dispatcher.Enqueue(action)
+	cache.Dispatcher.Enqueue(action, asynq.Timeout(5*time.Minute))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")

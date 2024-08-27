@@ -24,7 +24,7 @@ func ConnectDB() {
 	}
 
 	log.Println("Connected to database!")
-	db.Logger = logger.Default.LogMode(logger.Info)
+	db.Logger = logger.Default.LogMode(logger.Silent)
 
 	log.Println("Performing migrations")
 	db.AutoMigrate(&models.Torrent{})

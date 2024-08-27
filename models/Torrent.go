@@ -13,6 +13,7 @@ type Torrent struct {
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
 	Url               string
 	TopLevelGroupName string
+	GroupName         string
 	DisplayName       string
 	AddedAt           time.Time
 	IsMetadata        bool

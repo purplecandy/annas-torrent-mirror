@@ -2,6 +2,7 @@ package main
 
 import (
 	"annas-mirror/actions"
+	"annas-mirror/database"
 	"log"
 	"os"
 
@@ -16,6 +17,8 @@ func main() {
 	if err != nil {
 		log.Println("Warning: Unable to load .env file")
 	}
+
+	database.ConnectDB()
 
 	server := asynq.NewServer(asynq.RedisClientOpt{Addr: os.Getenv("REDIS_URI")}, asynq.Config{
 		Concurrency: 2,
