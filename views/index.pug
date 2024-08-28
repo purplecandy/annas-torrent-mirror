@@ -1,59 +1,82 @@
 doctype html
 html
-  head
-    title Torrents
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    script(src="https://cdn.tailwindcss.com") 
-    script(src='https://unpkg.com/gridjs/dist/gridjs.umd.js')
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js")
-    link(rel="stylesheet", href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css")
-  body
-    h1 Welcome to the Pug Example
-    div(style="height: 400px; width: 400px", width="400", height="400") 
-        canvas(id="stats")
-    div(id="wrapper")
-    p This page includes JavaScript code.
+    include partials/header.pug
+    body(class="bg-zinc-100")
 
-    script.
-        console.log("Healthy - ", #{.healthySeedsCount})
-        console.log("Poor - ", #{.poorSeedsCount})
-        console.log("Risky - ", #{.riskySeedsCount})
+        div(class="bg-slate-200 py-2 px-4")
+            h1(class="text-2xl font-bold drop-shadow-md") Anna's Archive Torrent Mirror
+            p A mirror of <a class="underline" href="https://annas-archive.se/torrents">ultimate list of Anna's Archive</a> . We believe that Anna's effort in archiving is  essential for preservation and accessibility. 
+        div(class="w-4/5 my-4 mx-auto")
+            p(class="text-xl font-bold") Stats
+            p Breakdown current torrent stats excluding embargoed torrents, but including external torrents:
+            p 🔴 576.9TB	<4 seeders
+            p 🟡 347.2TB	4–10 seeders
+            p 🟢 11.7TB	>10 seeders
 
-        const result = #{.Result};
-        new gridjs.Grid({
-            columns: ["Name", "Total torrents"],
-            data: result.map(e => [e.GroupName, e.Count])
-        }).render(document.getElementById("wrapper"));
+            div(class="my-4 mx-auto" style="height: 250px; width: 250px", width="400", height="400") 
+                canvas(id="stats")
+            div(id="wrapper")
 
-    script.
-        const healthySeedsCount = #{.healthySeedsCount};
-        const poorSeedsCount = #{.poorSeedsCount};
-        const riskySeedsCount = #{.riskySeedsCount};
+        include partials/footer.pug
 
-        new Chart(
-            document.getElementById("stats"),
-            {
-            type: 'doughnut',
 
-            data: {
-                labels: [
-                    'Healthy',
-                    'Poor',
-                    'Risky'
-                ],
-                datasets: [{
-                    label: 'Torrent health dataset',
-                    data: [healthySeedsCount,poorSeedsCount,riskySeedsCount],
-                    backgroundColor: [
-                    'rgb(125, 180, 64)',
-                    'rgb(255, 205, 46)',
-                    'rgb(244, 65, 51)',
-                    ],
-                    hoverOffset: 4
-                }]
+        script.
+            function formatBytes(bytes,decimals) {
+                if(bytes == 0) return '0 Bytes';
+                var k = 1024,
+                    dm = decimals || 2,
+                    sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+                    i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
                 }
-            }
-        );
+
+            const result = #{.Result};
+            new gridjs.Grid({
+                columns: [
+                    "Name", 
+                    "Total torrents",
+                    "Files",
+                    {
+                        name: 'Size',
+                        formatter: (_, row) => formatBytes(_)
+                    }, 
+                    { 
+                        name: 'Actions',
+                        formatter: (_, row) => gridjs.html('<button class="text-blue-600 font-bold">View</button>')
+                     },
+                ],
+                data: result.map(e => [e.GroupName,e.Count,e.Files, e.Bytes, ])
+            }).render(document.getElementById("wrapper"));
+
+        script.
+            const healthySeedsCount = #{.healthySeedsCount};
+            const poorSeedsCount = #{.poorSeedsCount};
+            const riskySeedsCount = #{.riskySeedsCount};
+
+            new Chart(
+                document.getElementById("stats"),
+                {
+                type: 'doughnut',
+
+                data: {
+                    labels: [
+                        'Healthy',
+                        'Poor',
+                        'Risky'
+                    ],
+                    datasets: [{
+                        label: 'Torrent health dataset',
+                        data: [healthySeedsCount,poorSeedsCount,riskySeedsCount],
+                        backgroundColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 205, 86)',
+                        'rgb(255, 99, 132)',
+                        ],
+                        hoverOffset: 4
+                    }]
+                    }
+                }
+            );
 
 
-     
+
