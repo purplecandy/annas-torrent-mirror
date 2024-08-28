@@ -29,6 +29,7 @@ func main() {
 	})
 
 	app.Get("/", routes.AllTorrentGroups)
+	app.Get("/:group", routes.TorrentGroupData)
 
 	// action := actions.DispatchSyncTorrents()
 

@@ -1,0 +1,110 @@
+doctype html
+html
+    include partials/header.pug
+    script. 
+        function formatDate(date) {
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatBytes(bytes,decimals) {
+            if(bytes == 0) return '0 Bytes';
+            var k = 1024,
+                dm = decimals || 2,
+                sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+                i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+
+    body(class="bg-zinc-100")
+
+        div(class="bg-slate-200 py-2 px-4")
+            h1(class="text-2xl font-bold drop-shadow-md") Anna's Archive Torrent Mirror
+            p A mirror of <a class="underline" href="https://annas-archive.se/torrents">ultimate list of Anna's Archive</a> . We believe that Anna's effort in archiving is  essential for preservation and accessibility. 
+        div(class="w-4/5 my-4  mx-auto")
+            p(class="text-xl font-bold") #{.Group}
+            p Breakdown current torrent stats excluding embargoed torrents, but including external torrents:
+            p 🔴 {576.9TB}	<4 seeders
+            p 🟡 347.2TB	4–10 seeders
+            p 🟢 11.7TB	>10 seeders
+
+            div(id="wrapper" class="my-4")
+
+        include partials/footer.pug
+
+
+        script.
+            const result = #{.Result};
+            new gridjs.Grid({
+                columns: [
+                    "Name", 
+                    "Files",
+                    {
+                        name: "Added at",
+                        formatter: (added_at) => formatDate(new Date(added_at))
+                    },
+                    {
+                        name: 'Size',
+                        formatter: (_, row) => formatBytes(_)
+                    }, 
+                    "Seeders",
+                    "Leechers",
+                    "Completed",
+                    {
+                        name: "Type",
+                        formatter: (is_metadata) => is_metadata ? "Metadata" : "Data"
+                    },
+                    { 
+                        name: 'Actions',
+                        formatter: (_, row) => gridjs.html('<button class="text-blue-600 font-bold">Magnet</button> / <button class="text-blue-600 font-bold">Torrent</button>')},
+                ],
+                data: result.map(e => [e.display_name,e.num_files,e.added_at, e.data_size, e.seeders, e.leechers, e.completed, e.is_metadata ]),
+                    style: { 
+                        table: { 
+                        'white-space': 'nowrap'
+                        }
+                },
+                    pagination: {
+                        limit: 100
+                },
+                resizable: true,
+                fixedHeader: true,
+            }).render(document.getElementById("wrapper"));
+
+        script.
+            const healthySeedsCount = #{.healthySeedsCount};
+            const poorSeedsCount = #{.poorSeedsCount};
+            const riskySeedsCount = #{.riskySeedsCount};
+
+            console.log({healthySeedsCount,poorSeedsCount,riskySeedsCount})
+
+            new Chart(
+                document.getElementById("stats"),
+                {
+                type: 'doughnut',
+
+                data: {
+                    labels: [
+                        'Healthy',
+                        'Poor',
+                        'Risky'
+                    ],
+                    datasets: [{
+                        label: 'Torrent health dataset',
+                        data: [healthySeedsCount,poorSeedsCount,riskySeedsCount],
+                        backgroundColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 205, 86)',
+                        'rgb(255, 99, 132)',
+                        ],
+                        hoverOffset: 4
+                    }]
+                    }
+                }
+            );
+
+
+
