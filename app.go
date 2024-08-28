@@ -1,14 +1,13 @@
 package main
 
 import (
-	"annas-mirror/actions"
 	"annas-mirror/cache"
 	"annas-mirror/database"
+	"annas-mirror/routes"
 	"log"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/hibiken/asynq"
+	"github.com/gofiber/template/pug/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -23,15 +22,21 @@ func main() {
 	cache.ConnectCache()
 	database.ConnectDB()
 
-	app := fiber.New()
+	engine := pug.New("./views", ".pug")
 
-	action := actions.DispatchSyncTorrents()
-
-	cache.Dispatcher.Enqueue(action, asynq.Timeout(5*time.Minute))
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+	app := fiber.New(fiber.Config{
+		Views: engine,
 	})
+
+	app.Get("/", routes.AllTorrentGroups)
+
+	// action := actions.DispatchSyncTorrents()
+
+	// cache.Dispatcher.Enqueue(action, asynq.Timeout(5*time.Minute))
+
+	// app.Get("/", func(c *fiber.Ctx) error {
+	// 	return c.Render("index", fiber.Map{"Title": "Hello World!"})
+	// })
 
 	app.Listen(":3000")
 }

@@ -1,0 +1,59 @@
+doctype html
+html
+  head
+    title Torrents
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    script(src="https://cdn.tailwindcss.com") 
+    script(src='https://unpkg.com/gridjs/dist/gridjs.umd.js')
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js")
+    link(rel="stylesheet", href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css")
+  body
+    h1 Welcome to the Pug Example
+    div(style="height: 400px; width: 400px", width="400", height="400") 
+        canvas(id="stats")
+    div(id="wrapper")
+    p This page includes JavaScript code.
+
+    script.
+        console.log("Healthy - ", #{.healthySeedsCount})
+        console.log("Poor - ", #{.poorSeedsCount})
+        console.log("Risky - ", #{.riskySeedsCount})
+
+        const result = #{.Result};
+        new gridjs.Grid({
+            columns: ["Name", "Total torrents"],
+            data: result.map(e => [e.GroupName, e.Count])
+        }).render(document.getElementById("wrapper"));
+
+    script.
+        const healthySeedsCount = #{.healthySeedsCount};
+        const poorSeedsCount = #{.poorSeedsCount};
+        const riskySeedsCount = #{.riskySeedsCount};
+
+        new Chart(
+            document.getElementById("stats"),
+            {
+            type: 'doughnut',
+
+            data: {
+                labels: [
+                    'Healthy',
+                    'Poor',
+                    'Risky'
+                ],
+                datasets: [{
+                    label: 'Torrent health dataset',
+                    data: [healthySeedsCount,poorSeedsCount,riskySeedsCount],
+                    backgroundColor: [
+                    'rgb(125, 180, 64)',
+                    'rgb(255, 205, 46)',
+                    'rgb(244, 65, 51)',
+                    ],
+                    hoverOffset: 4
+                }]
+                }
+            }
+        );
+
+
+     
